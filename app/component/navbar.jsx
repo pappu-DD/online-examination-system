@@ -1,215 +1,239 @@
 "use client";
+import React, { useEffect, useState, useRef } from "react"; // Import React and the specific hooks you use
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { TiThMenuOutline } from "react-icons/ti";
 import { X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { UserButton, useUser, SignInButton, SignUpButton, SignOutButton } from "@clerk/nextjs";
+import { UserButton, useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
+import { motion } from "framer-motion";
 
-export default function Navbar() {
+const navVariants = {
+  hidden: { opacity: 0, y: -50 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeInOut" } },
+};
+
+const linkVariants = {
+  hover: { scale: 1.05, transition: { duration: 0.2 } },
+  tap: { scale: 0.95 },
+};
+
+const mobileMenuVariants = {
+  open: { opacity: 1, height: "auto", transition: { duration: 0.3, ease: "easeInOut" } },
+  closed: { opacity: 0, height: 0, transition: { duration: 0.3, ease: "easeInOut" } },
+};
+
+const mobileAuthVariants = {
+  open: { opacity: 1, y: 0, transition: { duration: 0.3, delay: 0.1, ease: "easeInOut" } },
+  closed: { opacity: 0, y: 20, transition: { duration: 0.2, ease: "easeInOut" } },
+};
+
+export default function Navbar({ children }) { // Make sure you're accepting the children prop if this is a layout
   const [isOpen, setIsOpen] = useState(false);
-  const { isLoaded, isSignedIn, user } = useUser();
-  
-  // Get user type from Clerk metadata or localStorage
-  const [userType, setUserType] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('userType') || null;
+  const router = useRouter();
+  const { isLoaded, isSignedIn } = useUser();
+  const [userType, setUserType] = useState(null);
+  const [navHeight, setNavHeight] = useState(0);
+  const navRef = useRef(null); // Use useRef from React
+
+  useEffect(() => {
+    const storedType = localStorage.getItem("userType");
+    setUserType(storedType);
+  }, []);
+
+  useEffect(() => {
+    if (isSignedIn && userType) {
+      const redirectPath = userType === "student" ? "/student/dashboard" : "/teacher/dashboard";
+      router.push(redirectPath);
     }
-    return null;
-  });
+  }, [isSignedIn, userType, router]);
 
-  const studentNavItems = [
-    { href: "/", label: "Home" },
-    { href: "/student/exams", label: "All Exams" },
-    { href: "/student/dashboard", label: "Dashboard" },
-    { href: "/student/results", label: "Results" },
-  ];
+  useEffect(() => {
+    if (navRef.current) {
+      setNavHeight(navRef.current.offsetHeight);
+    }
+  }, []);
 
-  const teacherNavItems = [
-    { href: "/", label: "Home" },
-    { href: "/teacher/dashboard", label: "Dashboard" },
-    { href: "/teacher/create-exam", label: "Create Exam" },
-    { href: "/teacher/manage-exams", label: "Manage Exams" },
-  ];
-
-  const publicNavItems = [
-    { href: "/", label: "Home" },
-    { href: "/component/about", label: "About Us" },
-    { href: "/component/contact", label: "Contact Us" },
-  ];
-
-  const handleUserTypeSelection = (type) => {
+  const handleLogin = (type) => {
+    localStorage.setItem("userType", type);
     setUserType(type);
-    localStorage.setItem('userType', type);
+    // Clerk modal opens here; after login, `useEffect` above redirects
   };
 
-  const renderNavItems = (items, isMobile = false) => {
-    return items.map((item) => (
-      <Link
+  const navItems = {
+    student: [
+      { href: "/", label: "Home" },
+      { href: "/student/exams", label: "All Exams" },
+      { href: "/student/dashboard", label: "Dashboard" },
+      { href: "/student/results", label: "Results" },
+    ],
+    teacher: [
+      { href: "/", label: "Home" },
+      { href: "/teacher/dashboard", label: "Dashboard" },
+      { href: "/teacher/create-exam", label: "Create Exam" },
+      { href: "/teacher/manage-exams", label: "Manage Exams" },
+    ],
+    public: [
+      { href: "/", label: "Home" },
+      { href: "/component/about", label: "About" },
+      { href: "/component/contact", label: "Contact" },
+    ],
+  };
+
+  const renderNavItems = (items, isMobile = false) =>
+    items.map((item) => (
+      <motion.li
         key={item.href}
-        href={item.href}
-        className={`${
-          isMobile
-            ? "text-white font-bold hover:bg-white/20 px-4 py-2 rounded-full w-full text-center"
-            : "px-4 py-2 text-white font-bold hover:bg-white/20 rounded-full transition-all duration-300 flex items-center group"
-        }`}
-        onClick={() => isMobile && setIsOpen(false)}
+        variants={linkVariants}
+        whileHover="hover"
+        whileTap="tap"
       >
-        <span className="group-hover:scale-105 transition-transform">{item.label}</span>
-      </Link>
+        <Link
+          href={item.href}
+          className={`${
+            isMobile
+              ? "block text-white font-semibold py-3 px-4 rounded-md hover:bg-zinc-700 transition duration-200"
+              : "px-4 py-2 text-white font-semibold rounded-md hover:bg-zinc-700 transition duration-200"
+          }`}
+          onClick={() => isMobile && setIsOpen(false)}
+        >
+          {item.label}
+        </Link>
+      </motion.li>
     ));
-  };
 
-  if (!isLoaded) {
-    return null; // or loading spinner
-  }
+  if (!isLoaded) return null;
 
   return (
-    <nav className="bg-zinc-800 rounded-b-lg shadow-lg p-3">
-      <div className="flex justify-between items-center">
-        {/* Logo */}
-        <h1 className="text-2xl font-extrabold text-white">
-          <Link href="/" className="p-2 text-white font-bold">
+    <>
+      <motion.nav
+        ref={navRef}
+        className="bg-zinc-900 p-4 rounded-b-xl shadow-md sticky top-0 left-0 right-0 z-50"
+        variants={navVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <div className="container mx-auto flex justify-between items-center">
+          {/* Logo */}
+          <Link href="/" className="text-xl font-extrabold text-indigo-400 tracking-tight">
             ExamDesk
           </Link>
-        </h1>
 
-        {/* Desktop Menu */}
-        <ul className="hidden md:flex space-x-6">
-          {isSignedIn
-            ? renderNavItems(userType === 'student' ? studentNavItems : teacherNavItems)
-            : renderNavItems(publicNavItems)}
-        </ul>
-
-        {/* Login/Logout Section - Desktop */}
-        <div className="relative hidden md:flex items-center gap-4">
-          {isSignedIn ? (
-            <>
-              <div className="flex items-center gap-2">
-                <UserButton aftersigninurl="/" />
-                <span className="text-white">
-                  {userType === 'student' ? 'Student' : 'Teacher'} Dashboard
-                </span>
-              </div>
-              <SignOutButton>
-                <Button 
-                  className="bg-red-500 hover:bg-red-600 text-white"
-                  onClick={() => localStorage.removeItem('userType')}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </Button>
-              </SignOutButton>
-            </>
-          ) : (
-            <>
-              {!userType && (
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    className={`text-white border-white hover:bg-white/10 ${userType === 'student' ? 'bg-blue-500' : ''}`}
-                    onClick={() => handleUserTypeSelection('student')}
-                  >
-                    Student
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className={`text-white border-white hover:bg-white/10 ${userType === 'teacher' ? 'bg-blue-500' : ''}`}
-                    onClick={() => handleUserTypeSelection('teacher')}
-                  >
-                    Teacher
-                  </Button>
-                </div>
-              )}
-              
-              {userType && (
-                <>
-                  <SignInButton 
-                    mode="modal"
-                    aftersigninurl={userType === 'student' ? '/student/dashboard' : '/teacher/dashboard'}
-                  >
-                    <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white">
-                      Login as {userType}
-                    </Button>
-                  </SignInButton>
-                </>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden text-white p-2 hover:bg-white/20 rounded-full"
-        >
-          {isOpen ? <X size={24} /> : <TiThMenuOutline size={24} />}
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="absolute top-16 left-0 w-full bg-gradient-to-r from-blue-500 to-purple-600 md:hidden z-50">
-          <ul className="flex flex-col items-center py-4 space-y-4 shadow-lg">
+          {/* Desktop Menu */}
+          <ul className="hidden md:flex gap-6 items-center">
             {isSignedIn
-              ? renderNavItems(userType === 'student' ? studentNavItems : teacherNavItems, true)
-              : renderNavItems(publicNavItems, true)}
-
-            <div className="w-full px-4 space-y-2">
-              {isSignedIn ? (
-                <>
-                  <div className="flex justify-center">
-                    <UserButton aftersigninurl="/" />
-                  </div>
-                  <SignOutButton>
-                    <Button 
-                      className="w-full bg-red-500 hover:bg-red-600 text-white"
-                      onClick={() => localStorage.removeItem('userType')}
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
-                    </Button>
-                  </SignOutButton>
-                </>
-              ) : (
-                <>
-                  {!userType && (
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        className={`flex-1 text-white border-white hover:bg-white/10 ${userType === 'student' ? 'bg-blue-500' : ''}`}
-                        onClick={() => handleUserTypeSelection('student')}
-                      >
-                        Student
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className={`flex-1 text-white border-white hover:bg-white/10 ${userType === 'teacher' ? 'bg-blue-500' : ''}`}
-                        onClick={() => handleUserTypeSelection('teacher')}
-                      >
-                        Teacher
-                      </Button>
-                    </div>
-                  )}
-                  
-                  {userType && (
-                    <>
-                      <SignInButton 
-                        mode="modal"
-                        aftersigninurl={userType === 'student' ? '/student/dashboard' : '/teacher/dashboard'}
-                      >
-                        <Button className="w-full bg-white text-blue-600 hover:bg-blue-50">
-                          Login as {userType}
-                        </Button>
-                      </SignInButton>
-                    </>
-                  )}
-                </>
-              )}
-            </div>
+              ? renderNavItems(navItems[userType] || [])
+              : renderNavItems(navItems.public)}
           </ul>
+
+          {/* Auth Section - Desktop */}
+          <div className="hidden md:flex items-center gap-3">
+            {!isSignedIn ? (
+              <>
+                <SignInButton mode="modal">
+                  <Button
+                    className="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-md shadow-sm transition duration-200"
+                    onClick={() => handleLogin("student")}
+                  >
+                    Login as Student
+                  </Button>
+                </SignInButton>
+                <SignInButton mode="modal">
+                  <Button
+                    className="bg-transparent hover:bg-indigo-500 text-white font-semibold rounded-md shadow-sm transition duration-200 border border-indigo-500"
+                    variant="outline"
+                    onClick={() => handleLogin("teacher")}
+                  >
+                    Login as Teacher
+                  </Button>
+                </SignInButton>
+              </>
+            ) : (
+              <div className="flex items-center gap-3">
+                <UserButton />
+                <SignOutButton>
+                  <Button
+                    className="bg-red-500 hover:bg-red-600 text-white font-semibold rounded-md shadow-sm transition duration-200 flex items-center"
+                    onClick={() => localStorage.removeItem("userType")}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </Button>
+                </SignOutButton>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden text-white p-2 hover:bg-zinc-800 rounded-md transition duration-200"
+          >
+            {isOpen ? <X size={24} /> : <TiThMenuOutline size={24} />}
+          </button>
         </div>
-      )}
-    </nav>
+
+        {/* Mobile Menu */}
+        <motion.div
+          className="md:hidden absolute top-full left-0 right-0 bg-zinc-900 shadow-md rounded-b-xl overflow-hidden"
+          variants={mobileMenuVariants}
+          initial="closed"
+          animate={isOpen ? "open" : "closed"}
+        >
+          <ul className="py-4 px-6 space-y-2">
+            {isSignedIn
+              ? renderNavItems(navItems[userType] || [], true)
+              : renderNavItems(navItems.public, true)}
+          </ul>
+
+          <motion.div
+            className="py-4 px-6 space-y-3"
+            variants={mobileAuthVariants}
+            initial="closed"
+            animate={isOpen ? "open" : "closed"}
+          >
+            {!isSignedIn ? (
+              <>
+                <SignInButton mode="modal">
+                  <Button
+                    className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-md shadow-sm transition duration-200"
+                    onClick={() => handleLogin("student")}
+                  >
+                    Login as Student
+                  </Button>
+                </SignInButton>
+                <SignInButton mode="modal">
+                  <Button
+                    className="w-full bg-transparent hover:bg-indigo-500 text-white font-semibold rounded-md shadow-sm transition duration-200 border border-indigo-500"
+                    variant="outline"
+                    onClick={() => handleLogin("teacher")}
+                  >
+                    Login as Teacher
+                  </Button>
+                </SignInButton>
+              </>
+            ) : (
+              <div className="space-y-3">
+                <UserButton />
+                <SignOutButton>
+                  <Button
+                    className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold rounded-md shadow-sm transition duration-200 flex items-center justify-center"
+                    onClick={() => localStorage.removeItem("userType")}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </Button>
+                </SignOutButton>
+              </div>
+            )}
+          </motion.div>
+        </motion.div>
+      </motion.nav>
+
+      {/* Add top padding to the first child below the Navbar */}
+      <div style={{ paddingTop: `${navHeight}px` }}>
+        {children}
+      </div>
+    </>
   );
 }
