@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowRight, Check, Shield, BookOpen, Clock, Users, BarChart2, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import Footer from './component/footer';
 
 export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -231,6 +232,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      <Footer/>
     </div>
   );
 }
