@@ -1,20 +1,36 @@
 "use client";
-import React, { useState } from 'react';
+
 import { Mail, Phone, MapPin, Twitter, Facebook, Linkedin, Github } from 'lucide-react';
 import Link from 'next/link';
+import { useState, FormEvent } from 'react';
 
 export default function Footer() {
   const [feedback, setFeedback] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [email, setEmail] = useState(''); // For newsletter subscription
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Here you would typically send the feedback to your backend
-    console.log('Feedback submitted:', feedback);
-    setSubmitted(true);
-    setFeedback('');
-    setTimeout(() => setSubmitted(false), 3000);
+
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, feedback }),
+      });
+
+      if (res.ok) {
+        setSubmitted(true);
+        setEmail('');
+        setFeedback('');
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Something went wrong');
+      }
+    } catch (err) {
+      setError('Network error');
+    }
   };
 
   const handleSubscribe = (e: React.FormEvent) => {
@@ -35,29 +51,7 @@ export default function Footer() {
           <p className="text-gray-400">
             Your trusted platform for seamless online examinations. Secure, reliable, and easy-to-use for both students and educators.
           </p>
-          
-          {/* Newsletter Subscription */}
-          <div className="mt-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-300 mb-2">
-              Subscribe to our newsletter
-            </h3>
-            <form onSubmit={handleSubscribe} className="flex gap-2">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your email"
-                className="flex-1 px-3 py-2 rounded bg-gray-800 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-              <button
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-white text-sm font-medium transition-all"
-              >
-                Join
-              </button>
-            </form>
-          </div>
+         
         </div>
 
         {/* Quick Links */}
@@ -112,30 +106,42 @@ export default function Footer() {
 
         {/* Feedback Form */}
         <div>
-          <h3 className="text-lg font-semibold mb-4">Send Feedback</h3>
-          {submitted ? (
-            <div className="bg-green-900/50 text-green-400 p-3 rounded">
-              Thanks for your feedback! We appreciate it.
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <textarea
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                placeholder="Your feedback..."
-                className="w-full p-3 rounded bg-gray-800 text-white resize-none h-28 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-                aria-label="Feedback input"
-              />
-              <button
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white font-medium transition-all"
-              >
-                Submit Feedback
-              </button>
-            </form>
-          )}
+      <h3 className="text-lg font-semibold mb-4">Send Feedback</h3>
+      {submitted ? (
+        <div className="bg-green-900/50 text-green-400 p-3 rounded">
+          Thanks for your feedback! We appreciate it.
         </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Your email..."
+            className="w-full p-3 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+            aria-label="Email input"
+          />
+          <textarea
+            value={feedback}
+            onChange={(e) => setFeedback(e.target.value)}
+            placeholder="Your feedback..."
+            className="w-full p-3 rounded bg-gray-800 text-white resize-none h-28 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+            aria-label="Feedback input"
+          />
+          {error && (
+            <p className="text-red-500 text-sm">{error}</p>
+          )}
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white font-medium transition-all"
+          >
+            Submit Feedback
+          </button>
+        </form>
+      )}
+    </div>
       </div>
 
       {/* Copyright and Legal */}
