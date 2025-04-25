@@ -75,8 +75,8 @@ export default function Navbar() {
     ],
     public: [
       { href: "/", label: "Home" },
-      { href: "/about", label: "About" },
-      { href: "/contact", label: "Contact" },
+      { href: "/component/about", label: "About" },
+      { href: "/component/contact", label: "Contact" },
     ],
   };
 
