@@ -1,9 +1,8 @@
-// app/api/create-exam/route.ts
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/configs/db';
 import { pgTable, serial, text, timestamp, integer } from 'drizzle-orm/pg-core';
-import { drizzle } from 'drizzle-orm/neon-http'; // Import drizzle
+import { drizzle } from 'drizzle-orm/neon-http';
 
 // Define schema for validation
 const examSchema = z.object({
@@ -23,7 +22,7 @@ const examSchema = z.object({
 });
 
 // Define table for exams
-export const exams = pgTable('exams', {
+const exams = pgTable('exams', {
     id: serial('id').primaryKey(),
     title: text('title').notNull(),
     subject: text('subject').notNull(),
@@ -35,7 +34,7 @@ export const exams = pgTable('exams', {
 });
 
 // Define table for questions
-export const questions = pgTable('questions', {
+const questions = pgTable('questions', {
     id: serial('id').primaryKey(),
     examId: integer('exam_id').notNull().references(() => exams.id),
     question: text('question').notNull(),
@@ -45,16 +44,13 @@ export const questions = pgTable('questions', {
 
 export async function POST(request: Request) {
     try {
-        // Connect to database
         const { db } = await connectToDatabase();
         console.log('Database connected successfully');
 
-        // Parse and validate request data
         const data = await request.json();
         const validatedData = examSchema.parse(data);
         console.log('Validated Data:', validatedData);
 
-        // Insert exam into database and get the inserted row
         const insertedExam = await db.insert(exams).values({
             title: validatedData.title,
             subject: validatedData.subject,
@@ -67,14 +63,12 @@ export async function POST(request: Request) {
 
         console.log('Inserted Exam:', insertedExam);
 
-        // Extract the id from the result
         const examId = insertedExam[0]?.id;
 
         if (!examId) {
             return NextResponse.json({ error: 'Failed to retrieve exam ID' }, { status: 500 });
         }
 
-        // Insert questions into the database
         const questionData = validatedData.questions.map((q) => ({
             examId,
             question: q.question,
