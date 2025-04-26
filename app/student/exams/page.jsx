@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from 'next/navigation';
 
 // Define the Exam interface in a separate file or at the top of this file
 import PropTypes from "prop-types";
@@ -287,14 +288,19 @@ export default function AllExams() {
     duration: "",
     difficulty: "",
   });
+  const router = useRouter();
 
-  // Fetch exams (mock data for example)
+  // Fetch exams from the database
   useEffect(() => {
     const fetchExams = async () => {
-      // Replace with actual API call
-      // const mockExams = await fetch('/api/exams').then(res => res.json());
-      setExams(mockExams);
-      setFilteredExams(mockExams);
+      try {
+        const response = await fetch('/api/exams'); // Replace with actual API endpoint
+        const data = await response.json();
+        setExams(data);
+        setFilteredExams(data);
+      } catch (error) {
+        console.error('Error fetching exams:', error);
+      }
     };
 
     fetchExams();
@@ -327,6 +333,10 @@ export default function AllExams() {
     setFilteredExams(results);
   }, [searchTerm, filters, exams]);
 
+  const handleStartExam = (examId) => {
+    router.push(`/student/exams/take/${examId}`); // Redirect to the exam-taking page
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 border-y-indigo-400">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -353,7 +363,58 @@ export default function AllExams() {
             {filteredExams.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {filteredExams.map((exam) => (
-                  <ExamCardComponent key={exam.id} exam={exam} />
+                  <motion.div
+                    key={exam.id}
+                    variants={examCardVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                  >
+                    <Card className="bg-green-200 border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200">
+                      <CardHeader>
+                        <CardTitle className="text-lg font-semibold text-gray-900 line-clamp-1">{exam.title}</CardTitle>
+                        <CardDescription className="text-gray-500 line-clamp-2">{exam.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
+                            <BookOpen className="mr-1 h-3 w-3 inline-block" /> {exam.subject}
+                          </Badge>
+                          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 text-xs">
+                            <Clock className="mr-1 h-3 w-3 inline-block" /> {exam.duration} min
+                          </Badge>
+                          <Badge
+                            variant="secondary"
+                            className={cn(
+                              "text-white text-xs",
+                              exam.difficulty === "Easy" && "bg-green-500",
+                              exam.difficulty === "Medium" && "bg-yellow-500",
+                              exam.difficulty === "Hard" && "bg-red-500"
+                            )}
+                          >
+                            {exam.difficulty}
+                          </Badge>
+                        </div>
+                        <div className="text-sm">
+                          <span className="font-medium text-gray-700">Questions:</span>{" "}
+                          <span className="text-gray-900">{exam.totalQuestions}</span>
+                        </div>
+                        <div className="text-sm">
+                          <span className="font-medium text-gray-700">Available Until:</span>{" "}
+                          <span className="text-gray-900">
+                            {new Date(exam.availableUntil).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <Button
+                          variant="outline"
+                          className="w-full text-gray-700 hover:bg-gray-100 text-sm"
+                          onClick={() => handleStartExam(exam.id)}
+                        >
+                          Start Exam
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 ))}
               </div>
             ) : (
