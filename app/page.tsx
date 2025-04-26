@@ -1,4 +1,5 @@
 "use client";
+import { Brain, Zap, Trophy, BarChart3 } from "lucide-react"
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Check, Shield, BookOpen, Clock, Users, BarChart2, Lock } from 'lucide-react';
@@ -99,16 +100,12 @@ export default function HomePage() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="flex flex-col sm:flex-row justify-center gap-4"
           >
-            <Link href="/sign-up?role=teacher">
-              <Button className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-6 text-lg font-semibold">
-                I'm an Educator <ArrowRight className="ml-2" />
-              </Button>
-            </Link>
-            <Link href="/sign-up?role=student">
-              <Button variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-blue-600 px-8 py-6 text-lg font-semibold">
-                I'm a Student <ArrowRight className="ml-2" />
-              </Button>
-            </Link>
+            <Link href="/quiz/new" passHref>
+                  <Button size="lg" className="gap-2 bg-red-500 px-8 py-6 text-lg font-semibold text-white hover:bg-red-600 hover:cursor-pointer" onClick={() => console.log("Start Quiz button clicked")}>
+                    <Zap className="h-5 w-5" />
+                    Start Quick Coding Quiz
+                  </Button>
+                </Link>
           </motion.div>
         </div>
       </section>

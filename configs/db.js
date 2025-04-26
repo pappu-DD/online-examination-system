@@ -1,3 +1,4 @@
+// configs/db.js
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 
@@ -9,5 +10,10 @@ const sql = neon(process.env.DATABASE_URL);
 export const db = drizzle(sql);
 console.log("Database URL:", process.env.DATABASE_URL);
 
+// Add this export
+const connectToDatabase = async () => {
+  //  You were already connecting to the database
+  return { db };
+};
 
-export default sql;
+export { connectToDatabase };
