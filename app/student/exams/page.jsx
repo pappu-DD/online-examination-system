@@ -25,6 +25,7 @@ import {
   ClockCircleOutlined,
   CheckCircleOutlined,
   ArrowLeftOutlined,
+  CloseCircleOutlined
 } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
