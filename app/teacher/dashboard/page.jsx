@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import {
     Table, Button, Modal, Form, Input, InputNumber, Select, Space,
     message, Card, Row, Col, Typography, Divider, Popconfirm
@@ -276,160 +275,174 @@ export default function Dashboard() {
     ];
 
     return (
-        <div style={{ padding: '24px' }}>
-            <Title level={2}>Exam Management Dashboard</Title>
+      <div style={{ padding: '32px', background: 'linear-gradient(135deg, #e0f7fa, #ffffff)', minHeight: '100vh' }}>
+      <Title level={2} style={{ textAlign: 'center', color: '#1890ff', marginBottom: '40px' }}>
+        🎯 Teacher Dashboard
+      </Title>
 
-            <Row gutter={[16, 16]}>
-                <Col xs={24} md={12}>
-                    <Card
-                        title="Exams"
-                        extra={
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={() => showExamModal()}
-                            >
-                                New Exam
-                            </Button>
-                        }
-                    >
-                        <Table
-                            columns={examColumns}
-                            dataSource={exams}
-                            rowKey="id"
-                            loading={loading}
-                            onRow={(record) => ({
-                                onClick: () => setSelectedExam(record.id),
-                                style: {
-                                    cursor: 'pointer',
-                                    background: selectedExam === record.id ? '#f0f0f0' : 'inherit',
-                                },
-                            })}
-                            rowClassName={(record) => selectedExam === record.id ? 'selected-row' : ''}
-                        />
-                    </Card>
-                    
-                </Col>
+      <Row gutter={[24, 24]}>
+        {/* Exams Panel */}
+        <Col xs={24} md={12}>
+          <Card
+            title="📚 Exams"
+            extra={
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={showExamModal}
+                style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+              >
+                New Exam
+              </Button>
+            }
+            style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.1)', borderRadius: '12px' }}
+          >
+            <Table
+              columns={examColumns}
+              dataSource={exams}
+              rowKey="id"
+              loading={loading}
+              onRow={(record) => ({
+                onClick: () => setSelectedExam(record.id),
+                style: {
+                  cursor: 'pointer',
+                  background: selectedExam === record.id ? '#e6f7ff' : 'inherit',
+                  transition: 'all 0.3s',
+                },
+              })}
+              rowClassName={(record) => (selectedExam === record.id ? 'selected-row' : '')}
+              pagination={false}
+            />
+          </Card>
+        </Col>
 
-                <Col xs={24} md={12}>
-                    <Card
-                        title={`Questions ${selectedExam ? `(Exam ID: ${selectedExam})` : ''}`}
-                        extra={
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={showQuestionModal}
-                                disabled={!selectedExam}
-                            >
-                                New Question
-                            </Button>
-                        }
-                    >
-                        {selectedExam ? (
-                            <Table
-                                columns={questionColumns}
-                                dataSource={questions}
-                                rowKey="id"
-                                loading={loading}
-                            />
-                        ) : (
-                            <Text type="secondary">Select an exam to view questions</Text>
-                        )}
-                    </Card>
-                </Col>
-            </Row>
+        {/* Questions Panel */}
+        <Col xs={24} md={12}>
+          <Card
+            title={`📝 Questions ${selectedExam ? `(Exam ID: ${selectedExam})` : ''}`}
+            extra={
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={showQuestionModal}
+                disabled={!selectedExam}
+                style={{ backgroundColor: '#722ed1', borderColor: '#722ed1' }}
+              >
+                New Question
+              </Button>
+            }
+            style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.1)', borderRadius: '12px' }}
+          >
+            {selectedExam ? (
+              <Table
+                columns={questionColumns}
+                dataSource={questions}
+                rowKey="id"
+                loading={loading}
+                pagination={false}
+              />
+            ) : (
+              <Text type="secondary" style={{ fontSize: '16px' }}>
+                👈 Select an exam to view questions
+              </Text>
+            )}
+          </Card>
+        </Col>
+      </Row>
 
-            {/* Exam Modal */}
-            <Modal
-                title={selectedExam ? "Edit Exam" : "Create New Exam"}
-                open={isExamModalOpen} // Changed 'visible' to 'open'
-                onCancel={() => setIsExamModalOpen(false)} // Changed 'setVisible' to 'setOpen'
-                footer={null}
-            >
-                <Form
-                    form={examForm}
-                    layout="vertical"
-                    onFinish={selectedExam ? handleUpdateExam : handleCreateExam}
-                >
-                    <Form.Item
-                        name="subject"
-                        label="Subject"
-                        rules={[{ required: true, message: 'Please input the subject!' }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name="description"
-                        label="Description"
-                    >
-                        <Input.TextArea />
-                    </Form.Item>
-                    <Form.Item
-                        name="duration"
-                        label="Duration (minutes)"
-                        rules={[{ required: true, message: 'Please input the duration!' }]}
-                    >
-                        <InputNumber min={1} style={{ width: '100%' }} />
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            {selectedExam ? "Update Exam" : "Create Exam"}
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Modal>
+      {/* Exam Modal */}
+      <Modal
+        title={selectedExam ? "✏️ Edit Exam" : "➕ Create New Exam"}
+        open={isExamModalOpen}
+        onCancel={() => setIsExamModalOpen(false)}
+        footer={null}
+        centered
+      >
+        <Form
+          form={examForm}
+          layout="vertical"
+          onFinish={selectedExam ? handleUpdateExam : handleCreateExam}
+        >
+          <Form.Item
+            name="subject"
+            label="Subject"
+            rules={[{ required: true, message: 'Please input the subject!' }]}
+          >
+            <Input placeholder="Enter subject name" />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Description"
+          >
+            <Input.TextArea placeholder="Enter exam description" />
+          </Form.Item>
+          <Form.Item
+            name="duration"
+            label="Duration (minutes)"
+            rules={[{ required: true, message: 'Please input the duration!' }]}
+          >
+            <InputNumber min={1} style={{ width: '100%' }} placeholder="Duration in minutes" />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              {selectedExam ? "Update Exam" : "Create Exam"}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
 
-            {/* Question Modal */}
-            <Modal
-                title="Add New Question"
-                open={isQuestionModalOpen} // Changed 'visible' to 'open'
-                onCancel={() => setIsQuestionModalOpen(false)} // Changed 'setVisible' to 'setOpen'
-                footer={null}
-            >
-                <Form
-                    form={questionForm}
-                    layout="vertical"
-                    onFinish={handleCreateQuestion}
-                >
-                    <Form.Item
-                        name="text"
-                        label="Question Text"
-                        rules={[{ required: true, message: 'Please input the question!' }]}
-                    >
-                        <Input.TextArea />
-                    </Form.Item>
-                    <Form.Item
-                        name="options"
-                        label="Options (one per line)"
-                        rules={[{ required: true, message: 'Please provide at least 2 options!' }]}
-                    >
-                        <Input.TextArea placeholder="Enter each option on a new line" rows={4} />
-                    </Form.Item>
-                    <Form.Item
-                        name="correctOption"
-                        label="Correct Option Index"
-                        rules={[{ required: true, message: 'Please select the correct option!' }]}
-                    >
-                        <InputNumber min={0} style={{ width: '100%' }} />
-                    </Form.Item>
-                    <Form.Item
-                        name="difficulty"
-                        label="Difficulty"
-                        rules={[{ required: true, message: 'Please select difficulty!' }]}
-                    >
-                        <Select>
-                            <Option value="easy">Easy</Option>
-                            <Option value="medium">Medium</Option>
-                            <Option value="hard">Hard</Option>
-                        </Select>
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Add Question
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Modal>
-        </div>
+      {/* Question Modal */}
+      <Modal
+        title="➕ Add New Question"
+        open={isQuestionModalOpen}
+        onCancel={() => setIsQuestionModalOpen(false)}
+        footer={null}
+        centered
+      >
+        <Form
+          form={questionForm}
+          layout="vertical"
+          onFinish={handleCreateQuestion}
+        >
+          <Form.Item
+            name="text"
+            label="Question Text"
+            rules={[{ required: true, message: 'Please input the question!' }]}
+          >
+            <Input.TextArea placeholder="Write the question here" />
+          </Form.Item>
+          <Form.Item
+            name="options"
+            label="Options (one per line)"
+            rules={[{ required: true, message: 'Please provide options!' }]}
+          >
+            <Input.TextArea placeholder="Enter each option on a new line" rows={4} />
+          </Form.Item>
+          <Form.Item
+            name="correctOption"
+            label="Correct Option Index"
+            rules={[{ required: true, message: 'Please select the correct option!' }]}
+          >
+            <InputNumber min={0} style={{ width: '100%' }} placeholder="Correct option index (0,1,2...)" />
+          </Form.Item>
+          <Form.Item
+            name="difficulty"
+            label="Difficulty Level"
+            rules={[{ required: true, message: 'Please select difficulty!' }]}
+          >
+            <Select placeholder="Select difficulty">
+              <Option value="easy">Easy</Option>
+              <Option value="medium">Medium</Option>
+              <Option value="hard">Hard</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              Add Question
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </div>
     );
 }
