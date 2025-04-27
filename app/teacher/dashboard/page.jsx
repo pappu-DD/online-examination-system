@@ -285,16 +285,16 @@ export default function Dashboard() {
         <Col xs={24} md={12}>
           <Card
             title="📚 Exams"
-            extra={
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={showExamModal}
-                style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
-              >
-                New Exam
-              </Button>
-            }
+            // extra={
+            //   <Button
+            //     type="primary"
+            //     icon={<PlusOutlined />}
+            //     onClick={showExamModal}
+            //     style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+            //   >
+            //     New Exam
+            //   </Button>
+            // }
             style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.1)', borderRadius: '12px' }}
           >
             <Table
