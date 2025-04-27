@@ -50,4 +50,25 @@ export async function PUT(request: Request) {
   }
 }
 
-// DELETE exam (already exists)
+// DELETE exam
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const examId = searchParams.get('id');
+
+    if (!examId) {
+      return NextResponse.json({ error: 'Exam ID is required' }, { status: 400 });
+    }
+
+    // Delete associated questions first
+    await db.delete(questions).where(eq(questions.examId, parseInt(examId)));
+
+    // Delete the exam
+    await db.delete(exams).where(eq(exams.id, parseInt(examId)));
+
+    return NextResponse.json({ message: 'Exam deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting exam:', error);
+    return NextResponse.json({ error: 'Failed to delete exam' }, { status: 500 });
+  }
+}
