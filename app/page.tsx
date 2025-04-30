@@ -114,7 +114,11 @@ export default function HomePage() {
             transition={{ duration: 0.8, ease: "easeInOut" }}
             className="text-4xl sm:text-5xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-blue-400 to-purple-400 text-white bg-clip-text"
           >
-            Elevate Your Examinations with <span className="text-blue-700 rounded-lg bg-yellow-400 ">Exam</span>Desk
+            Elevate Your Examinations with{" "}
+            <span className="text-blue-700 rounded-lg bg-yellow-400 ">
+              Exam
+            </span>
+            Desk
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 30 }}
@@ -143,18 +147,127 @@ export default function HomePage() {
                 Start quick Exam
               </Button>
             </Link>
-            {/* Add a secondary button, if needed */}
-            {/* <Button
-        size="lg"
-        variant="outline"
-        className="px-8 py-3 sm:py-4 text-lg font-semibold text-white border-2 border-white/50
-                   hover:bg-white/10 transition-colors duration-300"
-      >
-        Learn More
-      </Button> */}
           </motion.div>
         </div>
       </section>
+      <section className="py-20 px-6 bg-gradient-to-bl from-green-500 to-blue-500">
+  <div className="max-w-7xl mx-auto">
+    <div className="text-center mb-16">
+      <h1 className="text-4xl font-bold text-gray-800 mb-4">
+        Our Exam Solutions
+      </h1>
+      <h2 className="text-2xl text-white max-w-2xl mx-auto">
+        Comprehensive digital examination solutions tailored for modern educational needs
+      </h2>
+    </div>
+    
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      {/* Card 1: Semester Exam Solution */}
+      <div className="group bg-blue-300 rounded-2xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
+        <div className="flex flex-col md:flex-row h-full">
+          <div className="p-8 flex-1 order-2 md:order-1">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+              </div>
+              <h3 className="text-2xl font-semibold text-gray-800">
+                Semester Exam Solution
+              </h3>
+            </div>
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              Conduct virtual semester exams with our robust platform featuring automated proctoring, question randomization, and real-time analytics.
+            </p>
+            <ul className="space-y-2 mb-6">
+              <li className="flex items-center text-gray-600">
+                <svg className="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Secure browser lockdown
+              </li>
+              <li className="flex items-center text-gray-600">
+                <svg className="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                AI-powered cheating prevention
+              </li>
+              <li className="flex items-center text-gray-600">
+                <svg className="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Seamless grade integration
+              </li>
+            </ul>
+            <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300">
+              Learn More
+            </button>
+          </div>
+          <div className="md:w-2/5 order-1 md:order-2 relative overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1588072432836-e10032774350?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+              alt="Semester Exam"
+              className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-blue-600/10 to-blue-600/30"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Card 2: Entrance Exam Solution */}
+      <div className="group bg-blue-300 rounded-2xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
+        <div className="flex flex-col md:flex-row h-full">
+          <div className="p-8 flex-1 order-2 md:order-1">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <h3 className="text-2xl font-semibold text-gray-800">
+                Entrance Exam Solution
+              </h3>
+            </div>
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              Scale your entrance examinations with our high-capacity platform featuring advanced proctoring, multi-level authentication, and comprehensive reporting.
+            </p>
+            <ul className="space-y-2 mb-6">
+              <li className="flex items-center text-gray-600">
+                <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                High-volume candidate management
+              </li>
+              <li className="flex items-center text-gray-600">
+                <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Biometric verification
+              </li>
+              <li className="flex items-center text-gray-600">
+                <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Customizable test patterns
+              </li>
+            </ul>
+            <button className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-300">
+              Learn More
+            </button>
+          </div>
+          <div className="md:w-2/5 order-1 md:order-2 relative overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+              alt="Entrance Exam"
+              className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-green-600/10 to-green-600/30"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* Features Section */}
       {/* Colorful Features Section */}
