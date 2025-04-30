@@ -1,5 +1,5 @@
 "use client";
-import { Clock, BookOpen, BarChart2, Calendar } from "lucide-react";
+import { Clock, BookOpen, BarChart2, Calendar, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
@@ -51,6 +51,7 @@ export default function ExamCard({ exam }) {
           Start Exam
         </Button>
       </div>
+      <Calculator/>
     </div>
   );
 }

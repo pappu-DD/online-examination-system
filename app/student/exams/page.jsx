@@ -27,6 +27,7 @@ import {
   ArrowLeftOutlined,
   CloseCircleOutlined
 } from "@ant-design/icons";
+import Calculator from "@/app/component/calculator";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -490,6 +491,7 @@ export default function AllExams() {
                 </Radio.Group>
               </Form.Item>
             </Form>
+            <Calculator/>
           </div>
 
           <Space style={{ display: "flex", justifyContent: "space-between" }}>

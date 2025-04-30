@@ -140,7 +140,7 @@ export default function HomePage() {
                 onClick={() => console.log("Start Quiz button clicked")}
               >
                 <Zap className="h-6 w-6" />
-                Get Started
+                Start quick Exam
               </Button>
             </Link>
             {/* Add a secondary button, if needed */}

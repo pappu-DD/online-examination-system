@@ -222,7 +222,7 @@ export default function Calculator() {
         return (
             <button 
                 onClick={toggleCalculator}
-                className="fixed bottom-5 right-5 z-50 w-12 h-12 rounded-full bg-green-600 text-white 
+                className="fixed bottom-25 right-1 md:top-25 md:right-50 z-50 w-12 h-12 rounded-full bg-green-600 text-white 
                           border-none cursor-pointer shadow-md hover:bg-green-700 
                           transition-colors duration-200 flex items-center justify-center
                           sm:w-14 sm:h-14"
