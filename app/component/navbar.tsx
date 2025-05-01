@@ -71,6 +71,7 @@ export default function Navbar() {
     ],
     teacher: [
       { href: "/", label: "Home" },
+      { href: "/teacher/dashboard", label: "Dashboard" },
       { href: "/teacher/create-exam", label: "Create Exam" },
       { href: "/component/contact", label: "Contact" },
 
