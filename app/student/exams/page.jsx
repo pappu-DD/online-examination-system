@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   Table,
@@ -11,12 +11,10 @@ import {
   Space,
   Typography,
   Progress,
-  Modal,
   Form,
   Radio,
   Divider,
   Statistic,
-  Result,
   message,
   Popconfirm,
 } from "antd";
@@ -25,9 +23,12 @@ import {
   ClockCircleOutlined,
   CheckCircleOutlined,
   ArrowLeftOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import Calculator from "@/app/component/calculator";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -46,6 +47,7 @@ export default function AllExams() {
   const [examStarted, setExamStarted] = useState(false);
   const [examFinished, setExamFinished] = useState(false);
   const [score, setScore] = useState(0);
+  const certificateRef = useRef(null);
 
   // Fetch exams with questions
   const fetchExams = async () => {
@@ -54,7 +56,6 @@ export default function AllExams() {
       const examsResponse = await fetch("/api/exams");
       const examsData = await examsResponse.json();
 
-      // Fetch questions for each exam
       const examsWithQuestions = await Promise.all(
         examsData.map(async (exam) => {
           const questionsResponse = await fetch(
@@ -79,7 +80,7 @@ export default function AllExams() {
     fetchExams();
   }, []);
 
-  // Filter exams based on search and filters
+  // Filter exams
   useEffect(() => {
     let result = exams;
 
@@ -120,7 +121,7 @@ export default function AllExams() {
     }
 
     setSelectedExam(exam);
-    setTimeLeft(exam.duration * 60); // Convert minutes to seconds
+    setTimeLeft(exam.duration * 60);
     setAnswers(new Array(exam.questions.length).fill(null));
     setCurrentQuestion(0);
     setExamStarted(true);
@@ -147,7 +148,6 @@ export default function AllExams() {
   };
 
   const finishExam = () => {
-    // Calculate score
     let correct = 0;
     selectedExam.questions.forEach((question, index) => {
       if (answers[index] === question.correctOption) {
@@ -164,6 +164,50 @@ export default function AllExams() {
     setExamStarted(false);
     setExamFinished(false);
   };
+
+  // In your certificate generation code, modify the styles:
+const downloadCertificate = async () => {
+  try {
+    message.loading({ content: 'Generating certificate...', key: 'cert', duration: 0 });
+    
+    // Create a clone of the certificate element with simplified colors
+    const input = certificateRef.current;
+    const clone = input.cloneNode(true);
+    
+    // Replace oklch colors with hex/rgb
+    clone.querySelectorAll('*').forEach(el => {
+      const styles = window.getComputedStyle(el);
+      if (styles.background.includes('oklch')) {
+        el.style.background = '#f8f9fa'; // Replace with your fallback color
+      }
+      if (styles.color.includes('oklch')) {
+        el.style.color = '#212529'; // Replace with your fallback color
+      }
+    });
+
+    document.body.appendChild(clone);
+    const canvas = await html2canvas(clone, {
+      scale: 2,
+      logging: false,
+      useCORS: true,
+      backgroundColor: null,
+    });
+    document.body.removeChild(clone);
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('l', 'mm', 'a4');
+    const imgWidth = 297;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    pdf.save(`Certificate_${selectedExam.subject}_${new Date().toISOString().slice(0, 10)}.pdf`);
+    
+    message.success({ content: 'Certificate downloaded!', key: 'cert', duration: 2 });
+  } catch (error) {
+    message.error({ content: 'Failed to generate certificate', key: 'cert', duration: 2 });
+    console.error('Certificate generation error:', error);
+  }
+};
 
   const columns = [
     {
@@ -205,57 +249,24 @@ export default function AllExams() {
   ];
 
   return (
-    <div
-      className="bg-gradient-to-br from-green-300 to bg-red-200"
-      style={{ padding: "24px" }}
-    >
+    <div className="bg-gradient-to-br from-green-50 to-blue-50" style={{ padding: "24px", minHeight: "100vh" }}>
       {!selectedExam ? (
         <>
           <Title level={2}>Available Exams</Title>
 
-          <Space
-            style={{
-              marginBottom: 24,
-              width: "100%",
-            }}
-            direction="vertical"
-          >
-            <div
-              className="
-    flex 
-    flex-col 
-    sm:flex-row 
-    gap-4 
-    sm:gap-6 
-    w-full 
-    sm:items-center
-    sm:justify-between
-  "
-            >
-              {/* Search Input - Full width on mobile, fixed width on larger screens */}
+          <Space style={{ marginBottom: 24, width: "100%" }} direction="vertical">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:items-center sm:justify-between">
               <div className="w-full sm:w-auto flex-1 min-w-[200px]">
                 <Input
                   placeholder="Search exams..."
-                  prefix={<SearchOutlined className="text-gray-400" />}
+                  prefix={<SearchOutlined />}
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
                   allowClear
-                  className="
-          w-full
-          hover:border-blue-400 
-          focus:border-blue-500
-          transition-colors
-          rounded-lg
-          py-2
-          h-auto
-        "
-                  style={{
-                    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-                  }}
+                  className="w-full rounded-lg py-2 h-auto"
                 />
               </div>
 
-              {/* Difficulty Filter - Full width on mobile, fixed width on larger screens */}
               <div className="w-full sm:w-auto">
                 <Select
                   placeholder="Filter by difficulty"
@@ -263,43 +274,12 @@ export default function AllExams() {
                   onChange={setDifficultyFilter}
                   allowClear
                   onClear={() => setDifficultyFilter("all")}
-                  className="
-          w-full
-          sm:w-[250px]
-          hover:border-blue-400
-          rounded-lg
-          h-auto
-          py-1
-        "
-                  dropdownClassName="rounded-lg"
-                  style={{
-                    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-                  }}
+                  className="w-full sm:w-[250px] rounded-lg h-auto py-1"
                 >
-                  <Option value="all">
-                    <span className="flex items-center">
-                      <span className="w-3 h-3 rounded-full bg-gray-200 mr-2"></span>
-                      All Difficulties
-                    </span>
-                  </Option>
-                  <Option value="easy">
-                    <span className="flex items-center">
-                      <span className="w-3 h-3 rounded-full bg-green-500 mr-2"></span>
-                      Easy
-                    </span>
-                  </Option>
-                  <Option value="medium">
-                    <span className="flex items-center">
-                      <span className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>
-                      Medium
-                    </span>
-                  </Option>
-                  <Option value="hard">
-                    <span className="flex items-center">
-                      <span className="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
-                      Hard
-                    </span>
-                  </Option>
+                  <Option value="all">All Difficulties</Option>
+                  <Option value="easy">Easy</Option>
+                  <Option value="medium">Medium</Option>
+                  <Option value="hard">Hard</Option>
                 </Select>
               </div>
             </div>
@@ -311,14 +291,11 @@ export default function AllExams() {
             rowKey="id"
             loading={loading}
             pagination={{ pageSize: 5 }}
-            className="bg-amber-300 p-2 rounded-2xl"
-            locale={{
-              emptyText: "No exams available",
-            }}
+            locale={{ emptyText: "No exams available" }}
           />
         </>
       ) : examFinished ? (
-        <div className="max-w-4xl mx-auto p-4 sm:p-6">
+        <div className="max-w-6xl mx-auto p-4 sm:p-6">
           <Card
             className="w-full border-0 shadow-lg rounded-xl overflow-hidden"
             title={
@@ -333,8 +310,6 @@ export default function AllExams() {
                 </Button>
               </div>
             }
-            headStyle={{ borderBottom: '1px solid #f0f0f0', padding: '20px 24px' }}
-            bodyStyle={{ padding: 0 }}
           >
             <div className="p-6 sm:p-8">
               <div className="text-center mb-8">
@@ -352,10 +327,69 @@ export default function AllExams() {
                     style={{ width: `${Math.round((score / selectedExam.questions.length) * 100)}%` }}
                   ></div>
                 </div>
+                
+          
               </div>
-      
+
+              {/* Hidden certificate template */}
+              <div className="hidden">
+                <div ref={certificateRef} className="w-[1056px] h-[816px] bg-white p-12 relative">
+                  
+                  <div className="text-center h-full flex flex-col items-center justify-center">
+                    <div className="mb-8">
+                      <h1 className="text-5xl font-bold text-blue-800 mb-2">Certificate of Achievement</h1>
+                      <p className="text-xl text-gray-600">This is to certify that</p>
+                    </div>
+                    
+                    <div className="my-8">
+                      <h2 className="text-6xl font-bold text-blue-600 mb-2">John Doe</h2>
+                      <div className="w-1/2 h-1 bg-gradient-to-r from-blue-400 to-green-400 mx-auto"></div>
+                    </div>
+                    
+                    <div className="mb-8">
+                      <p className="text-xl text-gray-700 mb-4">
+                        has successfully completed the <span className="font-bold">{selectedExam.subject}</span> examination
+                        with a score of <span className="font-bold">{score}/{selectedExam.questions.length}</span>
+                        ({Math.round((score / selectedExam.questions.length) * 100)}%)
+                      </p>
+                      
+                      <div className="grid grid-cols-3 gap-4 mt-6">
+                        <div className="flex flex-col items-center">
+                          <p className="text-gray-600">Subject</p>
+                          <p className="font-medium">{selectedExam.subject}</p>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <p className="text-gray-600">Score</p>
+                          <p className="font-medium">{score}/{selectedExam.questions.length}</p>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <p className="text-gray-600">Date</p>
+                          <p className="font-medium">{new Date().toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-12 w-full flex justify-between">
+                      <div className="text-center">
+                        <div className="h-1 w-32 bg-gray-400 mx-auto mb-2"></div>
+                        <p className="text-gray-600">Exam Administrator</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="h-1 w-32 bg-gray-400 mx-auto mb-2"></div>
+                        <p className="text-gray-600">ExamDesk Team</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-8 text-sm text-gray-500">
+                      <p>Certificate ID: {Math.random().toString(36).substring(2, 10).toUpperCase()}</p>
+                      <p>Verified at examdesk.com/verify</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <Divider className="text-gray-400 font-medium">Detailed Results</Divider>
-      
+              
               <div className="space-y-6">
                 {selectedExam.questions.map((question, index) => (
                   <div 
@@ -386,7 +420,7 @@ export default function AllExams() {
                             </div>
                           ))}
                         </div>
-      
+                        
                         <div className={`mt-3 p-3 rounded-md ${answers[index] === question.correctOption ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                           {answers[index] === question.correctOption ? (
                             <span className="flex items-center gap-2">
@@ -411,7 +445,7 @@ export default function AllExams() {
                   </div>
                 ))}
               </div>
-      
+              
               <div className="mt-8 text-center">
                 <Button 
                   type="primary" 
@@ -449,9 +483,7 @@ export default function AllExams() {
           style={{ maxWidth: 800, margin: "0 auto" }}
         >
           <Progress
-            percent={
-              ((currentQuestion + 1) / selectedExam.questions.length) * 100
-            }
+            percent={((currentQuestion + 1) / selectedExam.questions.length) * 100}
             showInfo={false}
             strokeColor="#1890ff"
           />
@@ -460,19 +492,14 @@ export default function AllExams() {
           </Text>
 
           <div style={{ margin: "24px 0" }}>
-            <Text
-              strong
-              style={{ fontSize: 16, display: "block", marginBottom: 16 }}
-            >
+            <Text strong style={{ fontSize: 16, display: "block", marginBottom: 16 }}>
               {selectedExam.questions[currentQuestion].text}
             </Text>
 
             <Form>
               <Form.Item>
                 <Radio.Group
-                  onChange={(e) =>
-                    handleAnswer(currentQuestion, e.target.value)
-                  }
+                  onChange={(e) => handleAnswer(currentQuestion, e.target.value)}
                   value={answers[currentQuestion]}
                 >
                   <Space direction="vertical">
