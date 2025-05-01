@@ -66,12 +66,14 @@ export default function Navbar() {
     student: [
       { href: "/", label: "Home" },
       { href: "/student/exams", label: "All Exams" },
-      { href: "/student/dashboard", label: "Dashboard" },
+      { href: "/component/contact", label: "Contact" },
+
     ],
     teacher: [
       { href: "/", label: "Home" },
-      { href: "/teacher/dashboard", label: "Dashboard" },
       { href: "/teacher/create-exam", label: "Create Exam" },
+      { href: "/component/contact", label: "Contact" },
+
     ],
     public: [
       { href: "/", label: "Home" },
